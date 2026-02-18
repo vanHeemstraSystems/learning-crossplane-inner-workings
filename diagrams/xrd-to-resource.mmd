@@ -1,0 +1,45 @@
+flowchart LR
+subgraph input[“📝 Developer Input\n(namespace: team-alpha)”]
+XR[“Database (XR)\nkind: Database\nnamespace: team-alpha\nspec.parameters:\n  size: medium\n  region: westeurope\n  storageGB: 100\n\n✅ No Claim needed\n✅ No cluster-scoped twin”]
+end
+
+```
+subgraph xr_layer["🔧 Crossplane Core"]
+    Comp["Composition\n(Pipeline mode\nFunctions only)"]
+    Fn["function-patch-and-\ntransform\n(gRPC)"]
+    AR["function-auto-ready\n(gRPC)"]
+    Comp -->|"calls"| Fn
+    Fn -->|"then calls"| AR
+end
+
+subgraph mr_layer["⚙️ Composed Resources\n(all in namespace: team-alpha)"]
+    RG["ResourceGroup\nlocation: westeurope\nname: my-db-rg\nnamespace: team-alpha"]
+    PG["FlexibleServer\nlocation: westeurope\nskuName: GP_Standard_D2s_v3\nstorageMb: 102400\nnamespace: team-alpha"]
+    FW["FirewallRule\nstartIp: 0.0.0.0\nnamespace: team-alpha"]
+    Sec["Secret: db-connection\nusername/endpoint/port\nnamespace: team-alpha\n(composed explicitly)"]
+end
+
+subgraph cloud["☁️ Azure"]
+    ARG["Azure Resource Group"]
+    APGS["Azure PostgreSQL\nFlexible Server"]
+    AFW["Azure Firewall Rule"]
+end
+
+XR -->|"1. Composite Reconciler\npicks up XR"| Comp
+Comp -->|"2. size→SKU map\nstorage×1024\nregion copy"| RG
+Comp -->|"3. patches applied"| PG
+Comp -->|"4. creates"| FW
+Comp -->|"5. composes Secret\n(no built-in conn details)"| Sec
+
+RG -->|"provider reconciles"| ARG
+PG -->|"provider reconciles"| APGS
+FW -->|"provider reconciles"| AFW
+
+AR -->|"all Ready?\nmark XR Ready=True"| XR
+
+style input fill:#fce7f3,stroke:#db2777
+style xr_layer fill:#ede9fe,stroke:#7c3aed
+style mr_layer fill:#fef3c7,stroke:#d97706
+style cloud fill:#dbeafe,stroke:#3b82f6
+style Sec fill:#d1fae5,stroke:#059669
+```
