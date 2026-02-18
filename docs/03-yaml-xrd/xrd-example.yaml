@@ -1,0 +1,84 @@
+# CompositeResourceDefinition (v2)
+
+# KEY v2 CHANGES:
+
+# - apiVersion: apiextensions.crossplane.io/v2
+
+# - spec.scope: Namespaced  (default in v2; explicit for clarity)
+
+# - NO claimNames           (Claims not supported in v2)
+
+# - NO connectionSecretKeys (connection details composed explicitly in v2)
+
+# 
+
+# Apply with: kubectl apply -f xrd-example.yaml
+
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+name: databases.platform.mycompany.com
+annotations:
+description: “v2 Platform API for managed PostgreSQL databases (namespaced, no Claims)”
+spec:
+
+# scope: Namespaced is the default in v2.
+
+# Generated CRD will be namespace-scoped.
+
+# Use scope: Cluster only for platform-level resources.
+
+scope: Namespaced
+
+group: platform.mycompany.com
+names:
+kind: Database
+plural: databases
+singular: database
+
+# NO claimNames — not supported in apiextensions.crossplane.io/v2
+
+# NO connectionSecretKeys — compose a Secret resource explicitly instead
+
+versions:
+- name: v1alpha1
+served: true
+referenceable: true
+schema:
+openAPIV3Schema:
+type: object
+properties:
+spec:
+type: object
+required:
+- parameters
+properties:
+parameters:
+type: object
+required:
+- storageGB
+- region
+properties:
+storageGB:
+type: integer
+description: “Storage size in GB (20–16384)”
+minimum: 20
+maximum: 16384
+region:
+type: string
+description: “Azure region”
+enum: [westeurope, northeurope, eastus]
+size:
+type: string
+description: “Database tier”
+default: small
+enum: [small, medium, large]
+version:
+type: string
+description: “PostgreSQL major version”
+default: “15”
+enum: [“13”, “14”, “15”]
+highAvailability:
+type: boolean
+description: “Enable zone-redundant HA (increases cost)”
+default: false
