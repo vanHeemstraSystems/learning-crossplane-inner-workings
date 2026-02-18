@@ -1,0 +1,55 @@
+graph TB
+subgraph oci[“📦 OCI Image (e.g. xpkg.upbound.io/upbound/provider-azure-network:v1.4.0)”]
+Binary[“Go Binary\n(provider-azure-network)”]
+CRDs_ns[“Namespaced CRD YAMLs\n(v2 default)\nvirtualnetworks.network.azure… scope=Namespaced”]
+CRDs_cl[“Cluster-scoped CRD YAMLs\n(legacy, backward compat)\nvirtualnetworks.network.azure… scope=Cluster”]
+Meta[“crossplane.yaml\n(package metadata)\nFully qualified image URL required in v2”]
+end
+
+```
+subgraph pkg["📋 Package Manager (Crossplane Core)"]
+    PM["PackageRevision Controller"]
+    PM -->|"1. pulls OCI image"| oci
+    PM -->|"2. applies namespaced CRDs"| k8s_crds
+    PM -->|"3. creates Deployment\n(using DeploymentRuntimeConfig)"| pod
+end
+
+subgraph k8s_crds["📄 Kubernetes CRDs (namespaced — v2 default)"]
+    CRD1["virtualnetworks.network.azure.upbound.io\nscope: Namespaced"]
+    CRD2["subnets.network.azure.upbound.io\nscope: Namespaced"]
+    CRD3["... 50+ network resource CRDs\nscope: Namespaced"]
+end
+
+subgraph pod["🏃 Provider Pod (crossplane-system)"]
+    Main["main()"]
+    Mgr["controller-runtime Manager\n(cluster-wide cache,\nwatches all namespaces)"]
+    C1["VirtualNetworkController\n(goroutine)\nwatches namespaced objects"]
+    C2["SubnetController\n(goroutine)\nwatches namespaced objects"]
+    SDK["Azure Go SDK\n(REST client)"]
+
+    Main --> Mgr
+    Mgr --> C1
+    Mgr --> C2
+    C1 --> SDK
+    C2 --> SDK
+end
+
+subgraph auth["🔑 Authentication"]
+    PC["ProviderConfig\n(name: default)"]
+    DRC["DeploymentRuntimeConfig\n(replaces ControllerConfig\nwhich is REMOVED in v2)"]
+    Sec["Kubernetes Secret\n(azure-creds)"]
+    PC --> Sec
+end
+
+SDK -->|"reads credentials"| auth
+SDK -->|"HTTPS REST calls"| Azure["☁️ Azure ARM API\nmanagement.azure.com"]
+
+style oci fill:#ede9fe,stroke:#7c3aed
+style pkg fill:#dbeafe,stroke:#3b82f6
+style k8s_crds fill:#fef3c7,stroke:#d97706
+style pod fill:#d1fae5,stroke:#059669
+style auth fill:#fce7f3,stroke:#db2777
+style Azure fill:#e0f2fe,stroke:#0284c7
+style CRDs_ns fill:#bbf7d0,stroke:#4ade80
+style CRDs_cl fill:#fed7aa,stroke:#f97316
+```
