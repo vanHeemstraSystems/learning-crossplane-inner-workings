@@ -1,0 +1,141 @@
+# Composition (v2 style)
+
+# KEY v2 CHANGES:
+
+# - mode: Pipeline is the ONLY supported mode (Resources mode removed)
+
+# - All composition logic runs via Composition Functions (gRPC)
+
+# - Connection secrets are composed explicitly as a Secret resource
+
+# - No writeConnectionSecretToRef or connectionDetails on resources
+
+# 
+
+# Prerequisites:
+
+# kubectl apply -f function-patch-and-transform.yaml
+
+# kubectl apply -f function-auto-ready.yaml
+
+# 
+
+# Apply with: kubectl apply -f composition-example.yaml
+
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+name: databases-azure-postgresql
+labels:
+provider: azure
+db: postgresql
+spec:
+compositeTypeRef:
+apiVersion: platform.mycompany.com/v1alpha1
+kind: Database
+
+mode: Pipeline   # Only supported mode in Crossplane v2
+
+pipeline:
+
+```
+# ──────────────────────────────────────────────────────────────
+# Step 1: function-patch-and-transform
+# Creates and patches all Azure managed resources
+# ──────────────────────────────────────────────────────────────
+- step: patch-and-transform
+  functionRef:
+    name: function-patch-and-transform
+  input:
+    apiVersion: pt.fn.crossplane.io/v1beta1
+    kind: Resources
+    resources:
+
+      # Resource 1: Azure Resource Group
+      - name: resource-group
+        base:
+          apiVersion: network.azure.upbound.io/v1beta1
+          kind: ResourceGroup
+          # namespace is NOT set here — composed resources inherit
+          # the XR's namespace automatically in v2
+          spec:
+            forProvider:
+              location: westeurope   # overridden by patch below
+        patches:
+          - type: FromCompositeFieldPath
+            fromFieldPath: spec.parameters.region
+            toFieldPath: spec.forProvider.location
+          - type: FromCompositeFieldPath
+            fromFieldPath: metadata.name
+            toFieldPath: metadata.name
+            transforms:
+              - type: string
+                string:
+                  fmt: "%s-rg"
+
+      # Resource 2: PostgreSQL Flexible Server
+      - name: postgresql-server
+        base:
+          apiVersion: dbforpostgresql.azure.upbound.io/v1beta2
+          kind: FlexibleServer
+          spec:
+            forProvider:
+              location: westeurope
+              resourceGroupNameSelector:
+                matchControllerRef: true
+              administratorLogin: pgadmin
+              storageMb: 32768
+              skuName: B_Standard_B1ms
+              version: "15"
+              administratorPasswordSecretRef:
+                namespace: crossplane-system
+                name: pg-admin-password
+                key: password
+        patches:
+          - type: FromCompositeFieldPath
+            fromFieldPath: spec.parameters.region
+            toFieldPath: spec.forProvider.location
+          - type: FromCompositeFieldPath
+            fromFieldPath: spec.parameters.size
+            toFieldPath: spec.forProvider.skuName
+            transforms:
+              - type: map
+                map:
+                  small:  B_Standard_B1ms
+                  medium: GP_Standard_D2s_v3
+                  large:  MO_Standard_E4s_v3
+          - type: FromCompositeFieldPath
+            fromFieldPath: spec.parameters.storageGB
+            toFieldPath: spec.forProvider.storageMb
+            transforms:
+              - type: math
+                math:
+                  type: Multiply
+                  multiply: 1024
+          - type: FromCompositeFieldPath
+            fromFieldPath: spec.parameters.version
+            toFieldPath: spec.forProvider.version
+
+      # Resource 3: Firewall Rule (allow Azure services)
+      - name: firewall-allow-azure
+        base:
+          apiVersion: dbforpostgresql.azure.upbound.io/v1beta1
+          kind: FlexibleServerFirewallRule
+          spec:
+            forProvider:
+              serverNameSelector:
+                matchControllerRef: true
+              resourceGroupNameSelector:
+                matchControllerRef: true
+              startIpAddress: 0.0.0.0
+              endIpAddress: 0.0.0.0
+
+# ──────────────────────────────────────────────────────────────
+# Step 2: function-auto-ready
+# Marks the XR as Ready when all composed resources are Ready.
+# In v2 this replaces the built-in readiness check from v1.
+# ──────────────────────────────────────────────────────────────
+- step: auto-ready
+  functionRef:
+    name: function-auto-ready
+```
