@@ -1,0 +1,262 @@
+# Azure Provider Configuration — Crossplane v2
+
+# 
+
+# KEY v2 CHANGES vs v1:
+
+# - runtimeConfigRef instead of controllerConfigRef (ControllerConfig is removed in v2)
+
+# - DeploymentRuntimeConfig instead of ControllerConfig
+
+# - Fully qualified image URLs (–registry flag removed in v2)
+
+# - Provider families (install only what you need)
+
+# 
+
+# Apply order:
+
+# 1. kubectl apply -f provider-azure.yaml
+
+# 2. Wait: kubectl wait provider/provider-family-azure –for=condition=Healthy –timeout=300s
+
+# 3. Create azure-creds secret (see lab-02-provider.md)
+
+# 4. kubectl apply -f providerconfig section below
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 1: DeploymentRuntimeConfig
+
+# Replaces the removed ControllerConfig type from Crossplane v1.
+
+# Controls the provider pod’s Deployment settings (resources, tolerations, etc.)
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+## apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+name: provider-azure-config
+spec:
+deploymentTemplate:
+spec:
+selector: {}
+template:
+spec:
+containers:
+- name: package-runtime
+resources:
+requests:
+memory: 256Mi
+cpu: 100m
+limits:
+memory: 1Gi
+cpu: 500m
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 2: provider-family-azure
+
+# The base provider — installs the ProviderConfig CRD and handles authentication.
+
+# All Azure sub-providers depend on this.
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+name: provider-family-azure
+spec:
+
+# Fully qualified image URL is required in v2 (–registry flag removed)
+
+package: xpkg.upbound.io/upbound/provider-family-azure:v1.4.0
+
+packagePullPolicy: IfNotPresent
+revisionActivationPolicy: Automatic
+revisionHistoryLimit: 1
+
+# runtimeConfigRef replaces controllerConfigRef (ControllerConfig removed in v2)
+
+## runtimeConfigRef:
+name: provider-azure-config
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 3: provider-azure-network
+
+# Installs namespaced CRDs for Azure networking resources:
+
+# VirtualNetwork, Subnet, NetworkSecurityGroup, PublicIPAddress, etc.
+
+# 
+
+# In v2, these CRDs are scope: Namespaced by default.
+
+# Cluster-scoped CRDs are still included for backward compatibility (LegacyCluster).
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+## apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+name: provider-azure-network
+spec:
+package: xpkg.upbound.io/upbound/provider-azure-network:v1.4.0
+packagePullPolicy: IfNotPresent
+revisionActivationPolicy: Automatic
+revisionHistoryLimit: 1
+runtimeConfigRef:
+name: provider-azure-config
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 4: provider-azure-dbforpostgresql
+
+# Installs namespaced CRDs for Azure PostgreSQL resources:
+
+# FlexibleServer, FlexibleServerDatabase, FlexibleServerFirewallRule, etc.
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+## apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+name: provider-azure-dbforpostgresql
+spec:
+package: xpkg.upbound.io/upbound/provider-azure-dbforpostgresql:v1.4.0
+packagePullPolicy: IfNotPresent
+revisionActivationPolicy: Automatic
+revisionHistoryLimit: 1
+runtimeConfigRef:
+name: provider-azure-config
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Step 5: ProviderConfig
+
+# Tells the provider where to find Azure credentials.
+
+# Apply AFTER creating the azure-creds secret (see lab-02-provider.md).
+
+# 
+
+# To create the secret:
+
+# az ad sp create-for-rbac –name crossplane-sp \
+
+# –role Contributor \
+
+# –scopes /subscriptions/$SUBSCRIPTION_ID \
+
+# –sdk-auth > azure-creds.json
+
+# kubectl create secret generic azure-creds \
+
+# –from-file=credentials=azure-creds.json \
+
+# -n crossplane-system
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+apiVersion: azure.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+name: default    # ManagedResources reference this by name via spec.providerConfigRef.name
+spec:
+credentials:
+source: Secret
+secretRef:
+namespace: crossplane-system
+name: azure-creds
+key: credentials
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTIONAL: Additional ProviderConfigs for multi-subscription setups.
+
+# Because MRs are now namespace-scoped in v2, you can use different
+
+# ProviderConfigs per team by naming them and referencing them in MRs.
+
+# 
+
+# Example:
+
+# —
+
+# apiVersion: azure.upbound.io/v1beta1
+
+# kind: ProviderConfig
+
+# metadata:
+
+# name: team-alpha-subscription
+
+# spec:
+
+# credentials:
+
+# source: Secret
+
+# secretRef:
+
+# namespace: crossplane-system
+
+# name: azure-creds-team-alpha
+
+# key: credentials
+
+# 
+
+# Then in a ManagedResource:
+
+# spec:
+
+# providerConfigRef:
+
+# name: team-alpha-subscription
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# OPTIONAL: ManagedResourceDefinition (new in v2)
+
+# Selectively activate only the provider resources you need.
+
+# Reduces CRD count and API server load in large clusters.
+
+# 
+
+# Example — activate only VirtualNetwork and FlexibleServer:
+
+# —
+
+# apiVersion: pkg.crossplane.io/v1alpha1
+
+# kind: ManagedResourceDefinition
+
+# metadata:
+
+# name: enable-azure-resources
+
+# spec:
+
+# providerRef:
+
+# name: provider-azure-network
+
+# resources:
+
+# - group: network.azure.upbound.io
+
+# kind: VirtualNetwork
+
+# - group: network.azure.upbound.io
+
+# kind: Subnet
+
+# ─────────────────────────────────────────────────────────────────────────────
