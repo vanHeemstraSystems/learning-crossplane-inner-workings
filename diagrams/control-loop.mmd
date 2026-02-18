@@ -1,0 +1,53 @@
+flowchart TD
+Start([“⏰ Reconcile Triggered\n(watch event or requeue)\nMR is namespace-scoped in v2”])
+GetMR[“Get ManagedResource\nfrom Kubernetes API\n(includes namespace from req.NamespacedName)”]
+Deleted{“Is MR\nbeing deleted?”}
+DoDelete[“Delete from Cloud\nvia provider SDK”]
+Observe[“Observe()\nCall Cloud API\nDescribe resource”]
+Exists{“Resource\nexists in cloud?”}
+UpToDate{“Resource\nup-to-date?”}
+Create[“Create()\nCall Cloud API\nSet Condition=Creating”]
+Update[“Update()\nCall Cloud API”]
+SetReady[“Set Condition:\nReady=True, Synced=True\nWrite Status.AtProvider”]
+LateInit{“Late init\nfields found?”}
+WriteBack[“Write cloud defaults\nback to MR spec\n(in namespace)”]
+Requeue30[“Requeue in 30s”]
+Requeue10[“Requeue in ~10min\n(drift detection)”]
+Done([“✅ Reconcile Complete”])
+
+```
+FnPipeline["Composition Function\nPipeline (gRPC)\nDetermines desired\ncomposed resource state"]
+ApplyMRs["Apply desired MRs\nin XR's namespace\n(all namespace-scoped)"]
+
+Start --> GetMR
+GetMR --> Deleted
+Deleted -->|Yes| DoDelete
+DoDelete --> Done
+Deleted -->|No| Observe
+
+subgraph composite_reconcile["Composite Reconciler Path (XR → MRs)"]
+    FnPipeline -->|"desired MR manifests"| ApplyMRs
+end
+
+Observe --> Exists
+Exists -->|No| Create
+Create --> Requeue30
+Requeue30 --> Done
+Exists -->|Yes| UpToDate
+UpToDate -->|No| Update
+Update --> Requeue30
+UpToDate -->|Yes| LateInit
+LateInit -->|Yes| WriteBack
+WriteBack --> SetReady
+LateInit -->|No| SetReady
+SetReady --> Requeue10
+Requeue10 --> Done
+
+style Start fill:#6d28d9,color:#fff
+style Done fill:#059669,color:#fff
+style Create fill:#dc2626,color:#fff
+style Update fill:#d97706,color:#fff
+style SetReady fill:#059669,color:#fff
+style DoDelete fill:#7f1d1d,color:#fff
+style composite_reconcile fill:#ede9fe,stroke:#7c3aed
+```
