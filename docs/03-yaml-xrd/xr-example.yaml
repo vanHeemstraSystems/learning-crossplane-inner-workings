@@ -1,0 +1,47 @@
+# CompositeResource (XR) — v2 style
+
+# KEY v2 CHANGES:
+
+# - Developer applies THIS object directly (no separate Claim)
+
+# - Object is namespace-scoped (apply with -n <namespace>)
+
+# - No writeConnectionSecretToRef (connection secrets are composed)
+
+# - spec.crossplane.* is populated by Crossplane after creation
+
+# 
+
+# Apply with:
+
+# kubectl create namespace team-alpha
+
+# kubectl apply -f xr-example.yaml -n team-alpha
+
+apiVersion: platform.mycompany.com/v1alpha1
+kind: Database
+metadata:
+name: my-app-database
+
+# namespace is set via -n flag or explicitly here
+
+namespace: team-alpha
+spec:
+parameters:
+storageGB: 50
+region: westeurope
+size: small
+version: “15”
+highAvailability: false
+
+# spec.crossplane is auto-managed by Crossplane.
+
+# You may optionally specify compositionRef to select a specific Composition.
+
+# If omitted, Crossplane selects the default/only matching Composition.
+
+# crossplane:
+
+# compositionRef:
+
+# name: databases-azure-postgresql
