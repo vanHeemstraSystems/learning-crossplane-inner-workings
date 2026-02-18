@@ -1,4 +1,3 @@
-```mermaid
 graph TB
 subgraph k8s[“Kubernetes Cluster”]
 subgraph cluster_scope[“Cluster-Scoped Objects”]
@@ -8,6 +7,8 @@ Prov[“Provider\n(OCI package)”]
 Func[“Function\n(e.g. function-patch-and-transform)”]
 DRC[“DeploymentRuntimeConfig\n(replaces ControllerConfig)”]
 end
+
+```
     subgraph ns["team-alpha NAMESPACE — all resources live here"]
         XR["Database (XR)\nNamespace-scoped\nDeveloper applies directly\nNO separate Claim"]
         MR1["ManagedResource\nResourceGroup\nNamespace-scoped"]
