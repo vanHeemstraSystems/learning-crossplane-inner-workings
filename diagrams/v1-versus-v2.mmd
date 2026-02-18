@@ -1,0 +1,58 @@
+flowchart TB
+subgraph v1[“❌ Crossplane v1 — Dual Object Model”]
+direction TB
+subgraph v1_cluster[“CLUSTER SCOPE”]
+v1_XRD[“XRD\napiextensions.crossplane.io/v1\nNO scope field\n(LegacyCluster default)”]
+v1_XR[“CompositeResource (XR)\nXDatabase\nCluster-scoped\nCreated by Crossplane\nDeveloper never sees this”]
+v1_MR1[“ManagedResource #1\nCluster-scoped”]
+v1_MR2[“ManagedResource #2\nCluster-scoped”]
+end
+subgraph v1_ns[“NAMESPACE: team-alpha”]
+v1_Claim[“Claim (XRC)\nDatabase\nNamespace-scoped\nDeveloper applies this\n(proxy for XR)”]
+end
+v1_Claim –>|“1-to-1 bind”| v1_XR
+v1_XR –>|“composes”| v1_MR1
+v1_XR –>|“composes”| v1_MR2
+v1_XRD –>|“defines”| v1_XR
+v1_XRD –>|“defines Claim CRD”| v1_Claim
+end
+
+```
+subgraph v2["✅ Crossplane v2 — Single Namespaced Object"]
+    direction TB
+    subgraph v2_cluster["CLUSTER SCOPE"]
+        v2_XRD["XRD\napiextensions.crossplane.io/v2\nscope: Namespaced\nNO claimNames"]
+    end
+    subgraph v2_ns["NAMESPACE: team-alpha (everything here)"]
+        v2_XR["CompositeResource (XR)\nDatabase\nNamespace-scoped\nDeveloper applies this directly\nNO separate Claim"]
+        v2_MR1["ManagedResource #1\nNamespace-scoped"]
+        v2_MR2["ManagedResource #2\nNamespace-scoped"]
+        v2_Sec["Secret\ndb-connection\n(composed explicitly)"]
+    end
+    v2_XRD -->|"generates\nONE namespaced CRD"| v2_ns
+    v2_XR -->|"composes"| v2_MR1
+    v2_XR -->|"composes"| v2_MR2
+    v2_XR -->|"composes"| v2_Sec
+end
+
+subgraph changes["🔄 Key Changes"]
+    c1["Claim (XRC) → REMOVED\nXR is now the developer's object"]
+    c2["Cluster-scoped XR → NAMESPACED XR"]
+    c3["Cluster-scoped MRs → NAMESPACED MRs"]
+    c4["claimNames in XRD → REMOVED"]
+    c5["connectionSecretKeys → REMOVED\nCompose a Secret explicitly"]
+    c6["Native patch-and-transform → REMOVED\nFunctions pipeline only"]
+    c7["ControllerConfig → REMOVED\nDeploymentRuntimeConfig"]
+end
+
+style v1 fill:#fef2f2,stroke:#dc2626
+style v2 fill:#f0fdf4,stroke:#16a34a
+style changes fill:#fefce8,stroke:#ca8a04
+style v1_cluster fill:#fee2e2,stroke:#ef4444
+style v1_ns fill:#fecaca,stroke:#f87171
+style v2_cluster fill:#dcfce7,stroke:#22c55e
+style v2_ns fill:#bbf7d0,stroke:#4ade80
+style v1_XR fill:#fca5a5,stroke:#ef4444
+style v1_Claim fill:#fdba74,stroke:#f97316
+style v2_XR fill:#4ade80,stroke:#16a34a,color:#14532d
+```
