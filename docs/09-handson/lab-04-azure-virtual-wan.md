@@ -1,5 +1,9 @@
 # Lab 04 — Azure Virtual WAN Composition
 
+## References
+
+- [Azure Virtual WAN with Crossplane v2](https://notebooklm.google.com/notebook/b895fe50-6507-4e19-b728-4eeecc44ee80)
+
 ## Overview
 
 In this lab you will build a **Crossplane v2** composition for an **Azure Virtual WAN** topology.  
