@@ -1,0 +1,45 @@
+-----
+
+## title: Azure Virtual WAN — Network Topology (Lab 04)
+
+flowchart TB
+subgraph RG[“🗂️  Resource Group  ·  rg-my-vwan-dev”]
+direction TB
+
+```
+    subgraph VWAN["☁️  Virtual WAN  (Standard)"]
+        direction TB
+
+        subgraph HUB["🔵  Virtual Hub  ·  10.100.0.0/23"]
+            direction LR
+            VPNgw["🔒 VPN Gateway\nscaleUnit: 1"]
+        end
+    end
+
+    subgraph SPOKES["Connected Spokes  (illustrative)"]
+        direction LR
+        VNet1["📦 VNet A\n10.10.0.0/16\n(Branch / On-prem)"]
+        VNet2["📦 VNet B\n10.20.0.0/16\n(Workload)"]
+    end
+end
+
+OnPrem["🏢 On-Premises\nSite / Branch"] -->|IPsec/IKEv2\nVPN Tunnel| VPNgw
+VPNgw -->|Hub routing| HUB
+HUB -->|VNet Peering| VNet1
+HUB -->|VNet Peering| VNet2
+VNet1 <-->|Transit via Hub| VNet2
+
+classDef wan fill:#0078D4,color:#fff,stroke:#005A9E,rx:8
+classDef hub fill:#50E6FF,color:#003756,stroke:#0078D4,rx:8
+classDef vpngw fill:#FFB900,color:#1A1A1A,stroke:#E09B00,rx:8
+classDef spoke fill:#E8F4FD,color:#003756,stroke:#0078D4,rx:4
+classDef rg fill:#F0F4FF,color:#1A1A1A,stroke:#6264A7,rx:4
+classDef onprem fill:#D83B01,color:#fff,stroke:#A62900,rx:6
+
+class VWAN wan
+class HUB hub
+class VPNgw vpngw
+class VNet1,VNet2 spoke
+class RG rg
+class OnPrem onprem
+```
