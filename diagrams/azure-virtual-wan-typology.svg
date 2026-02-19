@@ -1,0 +1,352 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" width="960" height="680" font-family="'Segoe UI', system-ui, sans-serif">
+
+  <!-- ── Background ─────────────────────────────────────────────────────── -->
+
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0F4FF"/>
+      <stop offset="100%" stop-color="#E8EDF8"/>
+    </linearGradient>
+    <linearGradient id="wanGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0078D4"/>
+      <stop offset="100%" stop-color="#005A9E"/>
+    </linearGradient>
+    <linearGradient id="hubGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#50E6FF"/>
+      <stop offset="100%" stop-color="#1AB7D6"/>
+    </linearGradient>
+    <linearGradient id="vpnGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB900"/>
+      <stop offset="100%" stop-color="#D89D00"/>
+    </linearGradient>
+    <linearGradient id="spoke1Grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8F4FD"/>
+      <stop offset="100%" stop-color="#C7E0F4"/>
+    </linearGradient>
+    <linearGradient id="spoke2Grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EEF9EC"/>
+      <stop offset="100%" stop-color="#CEEFCA"/>
+    </linearGradient>
+    <linearGradient id="onpremGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D83B01"/>
+      <stop offset="100%" stop-color="#A62900"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0002"/>
+    </filter>
+    <filter id="shadowSm" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0001"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0078D4"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6264A7"/>
+    </marker>
+    <marker id="arrowGrayBack" markerWidth="10" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#6264A7"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#D83B01"/>
+    </marker>
+    <marker id="arrowOrangeBack" markerWidth="10" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#D83B01"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="680" fill="url(#bgGrad)" rx="12"/>
+
+  <!-- ── Title ────────────────────────────────────────────────────────────── -->
+
+  <text x="480" y="38" text-anchor="middle" font-size="20" font-weight="700" fill="#003756">
+    Azure Virtual WAN — Network Topology
+  </text>
+  <text x="480" y="58" text-anchor="middle" font-size="13" fill="#6264A7">
+    Lab 04 · Crossplane v2 Composition · provider-azure-network/v1beta1
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       RESOURCE GROUP boundary
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="40" y="72" width="880" height="570" rx="12" fill="none"
+stroke="#6264A7" stroke-width="2" stroke-dasharray="8,4" filter="url(#shadowSm)"/>
+<rect x="56" y="64" width="272" height="22" rx="4" fill="#6264A7"/>
+<text x="68" y="79" font-size="12" font-weight="600" fill="#fff">
+ResourceGroup · rg-my-vwan-dev  (azure.upbound.io/v1beta1)
+</text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       VIRTUAL WAN box
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="60" y="96" width="840" height="440" rx="10" fill="url(#wanGrad)"
+opacity="0.12" stroke="#0078D4" stroke-width="2" filter="url(#shadowSm)"/>
+
+  <!-- WAN label badge -->
+
+  <rect x="76" y="88" width="310" height="22" rx="4" fill="url(#wanGrad)"/>
+  <text x="88" y="103" font-size="12" font-weight="600" fill="#fff">
+    VirtualWAN · Standard  (network.azure.upbound.io/v1beta1)
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       VIRTUAL HUB
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="295" y="118" width="370" height="230" rx="10"
+fill="url(#hubGrad)" opacity="0.25" stroke="#1AB7D6" stroke-width="2"
+filter="url(#shadowSm)"/>
+
+  <!-- Hub label -->
+
+  <rect x="311" y="110" width="328" height="22" rx="4" fill="#1AB7D6"/>
+  <text x="323" y="125" font-size="12" font-weight="600" fill="#003756">
+    VirtualHub · 10.100.0.0/23  (network.azure.upbound.io/v1beta1)
+  </text>
+
+  <!-- Hub icon -->
+
+<circle cx="480" cy="185" r="40" fill="url(#hubGrad)" stroke="#0078D4" stroke-width="2"
+filter="url(#shadow)"/>
+
+  <!-- Hub hexagon icon -->
+
+<polygon points="480,152 507,168 507,200 480,216 453,200 453,168"
+fill="none" stroke="#003756" stroke-width="2"/>
+<circle cx="480" cy="184" r="10" fill="#003756"/>
+<text x="480" y="232" text-anchor="middle" font-size="13" font-weight="700" fill="#003756">
+Virtual Hub
+</text>
+<text x="480" y="248" text-anchor="middle" font-size="11" fill="#003756">
+Hub Router · Route Tables · Peerings
+</text>
+<text x="480" y="263" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+SKU: Standard
+</text>
+<text x="480" y="278" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+addressPrefix: 10.100.0.0/23
+</text>
+<text x="480" y="295" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+virtualHubId → VPNGateway ref
+</text>
+<text x="480" y="311" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+virtualWanId ← from XR status
+</text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       VPN GATEWAY (inside Hub)
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="358" y="362" width="244" height="110" rx="8"
+fill="url(#vpnGrad)" stroke="#D89D00" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- Lock icon -->
+
+  <rect x="454" y="380" width="52" height="36" rx="4" fill="#fff" opacity="0.85"/>
+  <circle cx="480" cy="385" r="10" fill="none" stroke="#1A1A1A" stroke-width="2.5"/>
+  <rect x="468" y="392" width="24" height="18" rx="3" fill="#1A1A1A"/>
+  <circle cx="480" cy="400" r="3" fill="#FFB900"/>
+  <text x="480" y="432" text-anchor="middle" font-size="13" font-weight="700" fill="#1A1A1A">
+    VPN Gateway
+  </text>
+  <text x="480" y="448" text-anchor="middle" font-size="11" fill="#1A1A1A">
+    network.azure.upbound.io/v1beta1
+  </text>
+  <text x="480" y="462" text-anchor="middle" font-size="10" fill="#4A3300" font-style="italic">
+    scaleUnit: 1 · BGP-capable · IKEv2
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ON-PREMISES
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="68" y="378" width="192" height="112" rx="8"
+fill="url(#onpremGrad)" stroke="#A62900" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- Building icon -->
+
+  <rect x="130" y="395" width="60" height="44" fill="#fff" opacity="0.85" rx="2"/>
+  <rect x="145" y="395" width="14" height="20" fill="#A62900" rx="1"/>
+  <rect x="165" y="395" width="14" height="20" fill="#A62900" rx="1"/>
+  <rect x="145" y="420" width="30" height="19" fill="#A62900" rx="1"/>
+  <rect x="118" y="393" width="84" height="4" fill="#fff" opacity="0.7" rx="1"/>
+  <text x="164" y="457" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">
+    On-Premises
+  </text>
+  <text x="164" y="472" text-anchor="middle" font-size="11" fill="#FFD9CC">
+    Branch / HQ Site
+  </text>
+  <text x="164" y="487" text-anchor="middle" font-size="10" fill="#FFD9CC" font-style="italic">
+    IPsec/IKEv2 VPN Tunnel
+  </text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       SPOKE VNets
+  ════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Spoke A -->
+
+<rect x="68" y="148" width="200" height="148" rx="8"
+fill="url(#spoke1Grad)" stroke="#0078D4" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- VNet A icon -->
+
+  <rect x="128" y="165" width="80" height="52" rx="4" fill="#C7E0F4" stroke="#0078D4" stroke-width="1.5"/>
+  <rect x="135" y="172" width="24" height="14" rx="2" fill="#0078D4" opacity="0.8"/>
+  <rect x="163" y="172" width="24" height="14" rx="2" fill="#0078D4" opacity="0.6"/>
+  <rect x="135" y="192" width="52" height="14" rx="2" fill="#0078D4" opacity="0.4"/>
+  <text x="168" y="237" text-anchor="middle" font-size="13" font-weight="700" fill="#003756">
+    VNet A
+  </text>
+  <text x="168" y="252" text-anchor="middle" font-size="11" fill="#003756">
+    10.10.0.0/16
+  </text>
+  <text x="168" y="267" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+    Workload Subnet
+  </text>
+  <text x="168" y="282" text-anchor="middle" font-size="10" fill="#005A9E" font-style="italic">
+    VNet Peering → Hub
+  </text>
+
+  <!-- Spoke B -->
+
+<rect x="692" y="148" width="200" height="148" rx="8"
+fill="url(#spoke2Grad)" stroke="#107C10" stroke-width="2" filter="url(#shadow)"/>
+<rect x="752" y="165" width="80" height="52" rx="4" fill="#CEEFCA" stroke="#107C10" stroke-width="1.5"/>
+<rect x="759" y="172" width="24" height="14" rx="2" fill="#107C10" opacity="0.8"/>
+<rect x="787" y="172" width="24" height="14" rx="2" fill="#107C10" opacity="0.6"/>
+<rect x="759" y="192" width="52" height="14" rx="2" fill="#107C10" opacity="0.4"/>
+<text x="792" y="237" text-anchor="middle" font-size="13" font-weight="700" fill="#003756">
+VNet B
+</text>
+<text x="792" y="252" text-anchor="middle" font-size="11" fill="#003756">
+10.20.0.0/16
+</text>
+<text x="792" y="267" text-anchor="middle" font-size="10" fill="#107C10" font-style="italic">
+Services Subnet
+</text>
+<text x="792" y="282" text-anchor="middle" font-size="10" fill="#107C10" font-style="italic">
+VNet Peering → Hub
+</text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       CONNECTIONS / ARROWS
+  ════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Spoke A ↔ Hub (VNet Peering) -->
+
+<line x1="268" y1="222" x2="295" y2="200"
+stroke="#0078D4" stroke-width="2.5" stroke-dasharray="6,3"
+marker-end="url(#arrowBlue)"/>
+<line x1="295" y1="205" x2="268" y2="225"
+stroke="#0078D4" stroke-width="2.5" stroke-dasharray="6,3"
+marker-end="url(#arrowBlue)" transform="rotate(180 281.5 215)"/>
+
+  <!-- Spoke B ↔ Hub (VNet Peering) -->
+
+<line x1="665" y1="200" x2="692" y2="222"
+stroke="#107C10" stroke-width="2.5" stroke-dasharray="6,3"
+marker-end="url(#arrowGray)"/>
+<line x1="692" y1="218" x2="665" y2="200"
+stroke="#107C10" stroke-width="2.5" stroke-dasharray="6,3"
+marker-end="url(#arrowGray)" transform="rotate(180 678.5 209)"/>
+
+  <!-- Hub → VPN Gateway (internal Hub routing) -->
+
+<line x1="480" y1="225" x2="480" y2="362"
+stroke="#1AB7D6" stroke-width="2.5"
+marker-end="url(#arrowBlue)"/>
+<text x="490" y="300" font-size="10" fill="#005A9E" transform="rotate(-90 490 300)">
+Hub routing
+</text>
+
+  <!-- On-Premises ↔ VPN Gateway (IPsec Tunnel) -->
+
+<line x1="260" y1="430" x2="358" y2="418"
+stroke="#D83B01" stroke-width="2.5" stroke-dasharray="5,3"
+marker-end="url(#arrowOrange)"/>
+<line x1="358" y1="425" x2="260" y2="437"
+stroke="#D83B01" stroke-width="2.5" stroke-dasharray="5,3"
+marker-end="url(#arrowOrangeBack)"/>
+<rect x="268" y="402" width="82" height="18" rx="3" fill="#fff" opacity="0.85"/>
+<text x="309" y="415" text-anchor="middle" font-size="10" fill="#A62900" font-weight="600">
+IPsec / IKEv2
+</text>
+
+  <!-- Spoke A ↔ Spoke B (transit via hub) -->
+
+<path d="M 168 148 Q 480 90 792 148"
+fill="none" stroke="#6264A7" stroke-width="1.5" stroke-dasharray="4,4"
+marker-end="url(#arrowGray)" marker-start="url(#arrowGrayBack)"/>
+<rect x="380" y="82" width="198" height="16" rx="3" fill="#fff" opacity="0.8"/>
+<text x="479" y="94" text-anchor="middle" font-size="10" fill="#6264A7" font-weight="600">
+Transit routing via Virtual Hub
+</text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       CROSSPLANE LAYER — bottom strip
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="40" y="570" width="880" height="72" rx="8"
+fill="#003756" filter="url(#shadow)"/>
+<text x="480" y="591" text-anchor="middle" font-size="13" font-weight="700" fill="#50E6FF">
+Crossplane v2 Composition Pipeline
+</text>
+
+  <!-- Step boxes -->
+
+  <rect x="56" y="598" width="182" height="36" rx="5" fill="#0078D4" opacity="0.8"/>
+  <text x="147" y="614" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">XVirtualWan (XR)</text>
+  <text x="147" y="628" text-anchor="middle" font-size="9" fill="#B3D9F5">network.example.crossplane.io/v1alpha1</text>
+
+<text x="250" y="620" text-anchor="middle" font-size="18" fill="#50E6FF">→</text>
+
+  <rect x="262" y="598" width="192" height="36" rx="5" fill="#1E3A5F"/>
+  <text x="358" y="614" text-anchor="middle" font-size="10" fill="#50E6FF" font-weight="600">function-patch-and-transform</text>
+  <text x="358" y="628" text-anchor="middle" font-size="9" fill="#8DBDDA">pipeline step 1</text>
+
+<text x="466" y="620" text-anchor="middle" font-size="18" fill="#50E6FF">→</text>
+
+  <rect x="478" y="598" width="160" height="36" rx="5" fill="#1E3A5F"/>
+  <text x="558" y="614" text-anchor="middle" font-size="10" fill="#50E6FF" font-weight="600">function-auto-ready</text>
+  <text x="558" y="628" text-anchor="middle" font-size="9" fill="#8DBDDA">pipeline step 2</text>
+
+<text x="650" y="620" text-anchor="middle" font-size="18" fill="#50E6FF">→</text>
+
+  <rect x="660" y="598" width="200" height="36" rx="5" fill="#0078D4" opacity="0.8"/>
+  <text x="760" y="614" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">4 Managed Resources</text>
+  <text x="760" y="628" text-anchor="middle" font-size="9" fill="#B3D9F5">RG · VirtualWAN · VirtualHub · VPNGateway</text>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       LEGEND
+  ════════════════════════════════════════════════════════════════════════ -->
+
+<rect x="68" y="524" width="832" height="40" rx="6"
+fill="#fff" opacity="0.7"/>
+<text x="84" y="539" font-size="11" font-weight="600" fill="#003756">Legend:</text>
+
+  <!-- dashed blue -->
+
+  <line x1="140" y1="535" x2="172" y2="535" stroke="#0078D4" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="178" y="539" font-size="10" fill="#003756">VNet Peering</text>
+  <!-- solid cyan -->
+  <line x1="266" y1="535" x2="298" y2="535" stroke="#1AB7D6" stroke-width="2.5"/>
+  <text x="304" y="539" font-size="10" fill="#003756">Hub Routing</text>
+  <!-- dashed red -->
+  <line x1="393" y1="535" x2="425" y2="535" stroke="#D83B01" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="431" y="539" font-size="10" fill="#003756">IPsec/IKEv2 VPN</text>
+  <!-- dashed purple -->
+  <line x1="540" y1="535" x2="572" y2="535" stroke="#6264A7" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <text x="578" y="539" font-size="10" fill="#003756">Transit (via Hub)</text>
+  <!-- yellow fill -->
+  <rect x="680" y="527" width="14" height="14" rx="2" fill="url(#vpnGrad)" stroke="#D89D00" stroke-width="1"/>
+  <text x="700" y="539" font-size="10" fill="#003756">VPN Gateway (Crossplane MR)</text>
+
+  <!-- Scope note -->
+
+  <text x="84" y="554" font-size="10" fill="#6264A7" font-style="italic">
+    VNets A &amp; B shown for illustrative purposes only — not composed in this lab.
+    The Composition provisions: ResourceGroup, VirtualWAN, VirtualHub, VPNGateway.
+  </text>
+</svg>
