@@ -17,6 +17,15 @@ You will create:
 |`Composition`                            |Provisions a `ResourceGroup`, `VirtualWAN`, `VirtualHub`, and `VPNGateway`|
 |`XVirtualWan` (XR)                       |An instance of the composite resource                                     |
 
+## Network Topology
+
+The diagram below illustrates the Azure Virtual WAN topology that this lab provisions and the Crossplane v2 pipeline that drives it.
+
+![Azure Virtual WAN Network Topology](../../diagrams/azure-virtual-wan-topology.svg)
+
+> The diagram source is also available as a Mermaid file at [`diagrams/azure-virtual-wan-topology.mermaid`](../../diagrams/azure-virtual-wan-topology.mermaid) for editing in tools that support Mermaid natively.
+
+---
 
 > **Crossplane v2 key differences used here**
 > 
